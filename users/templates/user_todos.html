@@ -1,0 +1,292 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Todo List Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        padding: 20px;
+      }
+      .navbar {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+      }
+      .navbar-brand {
+        font-weight: bold;
+        color: #007bff;
+      }
+      .btn-custom {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 3px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        margin-left: 5px;
+      }
+      .btn-custom:hover {
+        background-color: #0056b3;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .table {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+      .badge {
+        font-size: 14px;
+        padding: 8px 12px;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+      .badge.bg-success {
+        background-color: #28a745;
+        color: #ffffff;
+      }
+      .badge.bg-warning {
+        background-color: #ffc107;
+        color: #212529;
+      }
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        background-color: white;
+        transition: .4s;
+      }
+      .slider.round {
+        border-radius: 34px;
+      }
+      .slider.round:before {
+        border-radius: 50%;
+      }
+      /* Slide to right for completed todos */
+      input:checked + .slider {
+        background-color: #28a745; /* Green for completed */
+      }
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+      /* Slide to left for pending todos */
+      .slider:before {
+        left: 4px; /* Initial position for pending */
+      }
+      /* Icon hover effects */
+      .btn-light {
+        background-color: transparent;
+        border: none;
+        padding: 0;
+      }
+      .btn-light:hover {
+        background-color: transparent;
+        transform: scale(1.2);
+      }
+      .fa-trash-o:hover {
+        color: red;
+      }
+      .fa-edit:hover {
+        color: #007bff;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">User Todo List Page</a>
+        <div class="ml-auto">
+          <a href="{% url 'new_todos' user_id=user.id %}" class="btn btn-custom"><i class="fas fa-plus-circle"></i> New TODO</a>
+          <a href="{% url 'logout' %}" class="btn btn-custom"><i class="fas fa-sign-out-alt"></i> Log out</a>
+          <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-custom"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <h1>To-Do List</h1>
+      {% csrf_token %}
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">Title</th>
+            <th scope="col">User first name</th>
+            <th scope="col">User last name</th>
+            <th scope="col">To-Do ID</th>
+            <th scope="col">Date Line</th>
+            <th scope="col">Status</th>
+            <th scope="col">Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for todo in todos %}
+          <tr id="todo-row-{{ todo.id }}">
+            <td>{{ todo.title }}</td>
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td>
+            <td>{{ todo.id }}</td>
+            <td>{{ todo.date_line|date:'d-m-Y\ H:i' }}</td>
+            <td>
+              <label class="switch">
+                <input type="checkbox" id="todo-{{ todo.id }}" {% if todo.is_completed %}checked{% endif %} onchange="toggle_todo({{ todo.id }})">
+                <span class="slider round"></span>
+              </label>
+            </td>
+            <td>
+              <button class="btn btn-light" onclick="delete_todo({{ todo.id }})"><i class="fa fa-trash-o" style="font-size:24px;color:red"></i></button>
+              <button class="btn btn-light" onclick="edit_todo({{ todo.id }}, '{{ todo.title }}', '{{ todo.date_line }}')"><i class="fa fa-edit" style="font-size:24px"></i></button>
+              <button class="btn btn-light d-none" id="saveBtn-{{ todo.id }}" onclick="save_todo({{ todo.id }})"><i class="fa fa-save" style="font-size:24px"></i></button>
+            </td> 
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bootstrap JS and Font Awesome Icons -->
+    <script src="https://rawgit.com/moment/moment/2.2.1/min/moment.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+    <script>
+      function toggle_todo(todoId, userId) {
+        fetch(`/users/user/update_todo/${todoId}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}', // CSRF token gereklidir
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data); // Gelen yanıtı konsola yazdırabilirsiniz (isteğe bağlı)
+          const checkbox = document.querySelector(`#todo-${todoId}`);
+          checkbox.checked = data.is_completed;
+          const slider = checkbox.nextElementSibling;
+          if (data.is_completed) {
+            slider.style.backgroundColor = '#28a745'; // Tamamlandı için yeşil
+            slider.querySelector('.slider:before').style.transform = 'translateX(26px)';
+          } else {
+            slider.style.backgroundColor = '#ccc'; // Bekleyen için varsayılan renk
+            slider.querySelector('.slider:before').style.transform = 'translateX(0)';
+          }
+        })
+        .catch(error => console.error('Error toggling todo:', error));
+      }
+
+
+    </script>
+    <script>
+      function delete_todo(todoId) {
+        fetch(`/users/user/delete_todo/${todoId}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}', // Ensure CSRF token is included
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            // Optionally handle success, e.g., remove the row from the table
+            const todoRow = document.getElementById(`todo-row-${todoId}`);
+            if (todoRow) {
+              todoRow.remove();
+            }
+          } else {
+            throw new Error('Failed to delete todo');
+          }
+        })
+        .catch(error => console.error('Error deleting todo:', error));
+      }
+    </script>
+    <script>
+      function edit_todo(todoId, title, dateLine) {
+        const todoRow = document.getElementById(`todo-row-${todoId}`);
+        const titleElement = todoRow.cells[0];
+        const dateLineElement = todoRow.cells[4];
+        
+        // Replace text with input fields for editing
+        titleElement.innerHTML = `<input type="text" id="edit-title-${todoId}" value="${title}" class="form-control">`;
+        dateLineElement.innerHTML = `<input type="datetime-local" id="edit-dateLine-${todoId}" value="${dateLine}" class="form-control">`;
+        
+        // Toggle edit and save button visibility
+        const editBtn = todoRow.querySelector(`.fa.fa-edit`);
+        editBtn.style.display = 'none'; // Edit button'u gizle
+        
+        const saveBtn = todoRow.querySelector(`#saveBtn-${todoId}`);
+        saveBtn.classList.remove('d-none'); // Save button'u göster
+      }
+        
+      
+    
+      function save_todo(todoId) {
+        const title = document.getElementById(`edit-title-${todoId}`).value;
+        const dateLine = document.getElementById(`edit-dateLine-${todoId}`).value;
+      
+        fetch(`/users/user/change_todo/${todoId}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title: title, date_line: dateLine })
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Kayıt işleminden sonra arayüzü güncelle
+          const todoRow = document.getElementById(`todo-row-${todoId}`);
+          todoRow.cells[0].textContent = data.title;
+          
+          todoRow.cells[4].textContent = moment(data.date_line).format('DD-MM-YYYY HH:mm'); // Update date_line cell
+          
+          const saveBtn = todoRow.querySelector(`#saveBtn-${todoId}`);
+          saveBtn.classList.add('d-none');
+          const editBtn = todoRow.querySelector(`.fa.fa-edit`);
+          editBtn.style.display = 'inline-block'; // or 'block' depending on its original display style
+
+        })
+        .catch(error => console.error('Todo kaydedilirken hata oluştu:', error));
+      }
+      
+    </script>
+     
+  </body>
+  </html>

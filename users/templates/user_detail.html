@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Detail</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .detail-section {
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .detail-section h2 {
+            margin-bottom: 15px;
+            color: #007bff;
+        }
+        .detail-section p {
+            margin-bottom: 5px;
+        }
+        .detail-section table {
+            margin-bottom: 0;
+        }
+        .detail-section th {
+            width: 30%;
+            background-color: #f2f2f2;
+        }
+        .detail-section td {
+            width: 70%;
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">User Detail Page</a>
+            <div class="ml-auto">
+                <a href="{% url 'logout' %}" class="btn btn-custom"><i class="fas fa-sign-out-alt"></i> Log out</a>
+                <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-custom"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </nav>
+
+    
+
+    <div class="container mt-4">
+        <h1>User Detail</h1>
+        
+        <!-- Kullanıcı Bilgileri -->
+        <div class="detail-section">
+            <h2>User Information</h2>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th scope="row">User Name</th>
+                        <td>{{ user.username }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">First Name</th>
+                        <td>{{ user.first_name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Last Name</th>
+                        <td>{{ user.last_name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Email</th>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paylaşımlar -->
+        <div class="detail-section">
+            <h2>Posts</h2>
+            <td><a href="{% url 'todos' user.id %}" class="btn-custom"><i class="fas fa-comment"></i> View Posts </a></td>
+        </div>
+        
+        <!-- Albümler -->
+        <div class="detail-section">
+            <h2>Albums</h2>
+            <td><a href="{% url 'todos' user.id %}" class="btn-custom"><i class="fas fa-image"></i> View Albums </a></td>
+
+        </div>
+        
+        <!-- Görev Listesi -->
+        <div class="detail-section">
+            <h2>To-Do List</h2>
+            <td><a href="{% url 'todos' user.id %}" class="btn-custom"><i class="fas fa-tasks"></i> View Todos </a></td>
+        </div>
+        
+    </div>
+    
+    <!-- Bootstrap JS ve Font Awesome Icons -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+    
